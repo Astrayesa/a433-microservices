@@ -1,0 +1,43 @@
+# versi docker compose
+version: "3.7"
+
+# list container yang akan dijalankan 
+services:
+  # container untuk webapp
+  item-app:
+    # image yang digunakan
+    image: ghcr.io/astrayesa/item-app:v1
+    # jika image yang digunakan tidak ditemukan, akan melakukan build berdasarkan Dockerfile pada current directory
+    build: ./
+    # mapping port 80 pada host ke port 8080 pada container
+    ports:
+      - 80:8080
+    # akan otomatis memulai kembali jika container berhenti
+    restart: always
+    # menggunakan network item-app-network
+    networks:
+      - item-app-network
+    # container akan dijalankan setelah container "item-db" berjalan
+    depends_on:
+      - "item-db"
+
+  # container untuk database
+  item-db:
+    # image yang digunakan
+    image: mongo:3
+    # akan otomatis memulai kembali jika container berhenti
+    restart: always
+    # melakukan mounting volume "app-db" ke path /data/db pada container
+    volumes:
+      - app-db:/data/db
+    # menggunakan network item-app-network
+    networks:
+      - item-app-network
+
+# menggunakan sebuah volume bernama app-db
+volumes:
+  app-db:
+
+# kedua container terhubung dengan network item-app-network
+networks:
+  item-app-network:
