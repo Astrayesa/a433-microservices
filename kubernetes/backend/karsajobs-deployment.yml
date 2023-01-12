@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: server
+        image: ghcr.io/astrayesa/karsajobs:latest
+        ports:
+          - containerPort: 8080
+        env:
+          - name: MONGO_HOST
+            value: $(MONGO_SERVICE_HOST)
+          - name: APP_PORT
+            value: "8080"
+          - name: MONGO_USER
+            valueFrom: 
+              secretKeyRef:
+                name: mongo-secret
+                key: MONGO_ROOT_USERNAME
+          - name: MONGO_PASS
+            valueFrom: 
+              secretKeyRef:
+                name: mongo-secret
+                key: MONGO_ROOT_PASSWORD
